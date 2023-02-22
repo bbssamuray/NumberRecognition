@@ -1,16 +1,17 @@
 
 OBJS = main.o neurolib.o
 CC = g++
-COMPILER_FLAGS = -O2
-LINKER_FLAGS =
+CXXFLAGS = -O2
+LDFLAGS =
 OBJ_NAME = numberRecognition.exe
 
 .PHONY:all
 all:executable
 
 executable: $(OBJS)
-	$(CC) $^ $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
+	$(CC) $^ $(CXXFLAGS) $(LDFLAGS) -o $(OBJ_NAME)
 
+#This doesn't even get invoked because of the implicit rules smh
 %.o : %.c
 	$(CC) $(CFLAGS) -c $<
 
