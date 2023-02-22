@@ -361,7 +361,7 @@ int main(int argc, char** argv) {
 
     int guess = guessNumberFromBMP("number.bmp", modelFileName);
 
-    printf("Your number is %d.", guess);
+    printf("Your number is %d.\n", guess);
 
     return 0;
 }
