@@ -285,7 +285,8 @@ int guessNumberFromBMP(std::string bmpFileName, std::string modelFileName) {
 
     int width = *(int*)&header[18];
     int height = *(int*)&header[22];
-    int rowPadded = (width * 3 + 3) & (~3);
+    int bytesPerPixel = header[28] / 8;  // Read bit depth and divide it by 8 to get how many bytes a single pixel is.
+    int rowPadded = (width * bytesPerPixel + 3) & (~3);
     // Rounds up to multiples of 4
 
     char* pixelData = new char[rowPadded];
@@ -301,9 +302,12 @@ int guessNumberFromBMP(std::string bmpFileName, std::string modelFileName) {
         bmpFile.read(pixelData, rowPadded);
         // Read a row of pixels into the pixelData array
 
-        for (int x = 0; x < width * 3; x += 3) {
-            inputs[y * width + x / 3] = ((unsigned char)pixelData[x] + (unsigned char)pixelData[x + 1] + (unsigned char)pixelData[x + 2]) / 3.0 / 255.0;
-            // Get the average of RGB values and put it into the input array
+        for (int x = 0; x < width * bytesPerPixel; x += bytesPerPixel) {
+            int tempColor = 0;
+            for (int b = 0; b < bytesPerPixel; b++) {
+                tempColor += (unsigned char)pixelData[x + b];
+            }
+            inputs[y * width + x / 3] = (float)tempColor / bytesPerPixel / 255.0;  // Get the average of colors and fit it between 0.0 and 1.0
         }
     }
 
@@ -320,7 +324,7 @@ int guessNumberFromBMP(std::string bmpFileName, std::string modelFileName) {
         if (outputs[biggestOutput] < outputs[i]) {
             biggestOutput = i;
         }
-        printf(" %d : %f\n", i, outputs[i]);  // Uncomment this
+        printf(" %d : %f\n", i, outputs[i]);
     }
 
     delete[] pixelData;
