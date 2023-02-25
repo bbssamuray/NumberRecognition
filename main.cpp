@@ -289,9 +289,27 @@ int guessNumberFromBMP(std::string bmpFileName, std::string modelFileName) {
     int rowPadded = (width * bytesPerPixel + 3) & (~3);
     // Rounds up to multiples of 4
 
+    int offset = *(int*)&header[10];
+    if (offset != 54) {
+        printf("Your BMP seems to have a color palette, I haven't bothered to implement this. Please use something else to edit them.\n");
+        if (bytesPerPixel != 3) {
+            printf("You may try changing the bit depth of BMP to 24.\n");
+        }
+    }
+    bmpFile.seekg(offset, bmpFile.beg);
+
+    int compressionMethod = *(int*)&header[30];
+    if (compressionMethod != 0) {
+        printf("Your bmp has compression, which is not supported. Expect bad results.\n");
+    }
+
     char* pixelData = new char[rowPadded];
     float* inputs = new float[width * height];
     float* outputs = new float[10];
+
+    for (int i = 0; i < width * height; i++) {
+        inputs[i] = 0;  // Just to be safe
+    }
 
     if (width != 28 || height != 28) {
         printf("width: %d\nHeight: %d\n", width, height);
